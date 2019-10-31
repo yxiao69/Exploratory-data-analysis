@@ -1,0 +1,320 @@
+---
+title: " Association"
+author: "YI XIAO"
+date: "3/13/2019"
+output: pdf_document 
+---
+## AIM 1 
+### a)	Scatter plot of hsTNI (or log hsTNI) vs. ACHDIARES
+```{r include = FALSE}
+knitr::opts_chunk$set(echo=FALSE)
+```
+
+```{r}
+library(readxl)
+##baseline 
+data=read_xlsx('/Users/xiaoyi/Documents/2018Fall/Clinical/cardiac_MRI_and_troponin_and_BNP_levels/ahmedwisecvd3182019.xlsx')
+ 
+aim1=data.frame(hsTNI=data$Mean_Conc__Pg_ml,ACHDIARES=data$ACHDIARES,ACHCBF_BEST=data$ACHCBF_BEST,LVEDP=data$LVEDP)
+
+
+plot(aim1$ACHDIARE,log(aim1$hsTNI),main=' log hsTNI vs. ACHDIARES ',xlab='ACHDIARE',ylab='log hsTNI')
+abline(v=0,col='red',lty=3)
+plot(aim1$ACHDIARE,aim1$hsTNI,main='hsTNI vs. ACHDIARES ',xlab='ACHDIARE',ylab='hsTNI')
+abline(v=0,col='red',lty=3)
+
+
+
+```
+
+### b)	Scatter plot of hsTNI (or log hsTNI) vs. ACHCBF_BEST 
+```{r}
+plot(aim1$ACHCBF_BEST,log(aim1$hsTNI),main=' log hsTNI vs.ACHCBF_BEST ',xlab='ACHCBF_BEST ',ylab='log hsTNI')
+abline(v=20,col='red',lty=3)
+abline(v=50,col='red',lty=3)
+plot(aim1$ACHCBF_BEST,aim1$hsTNI,main='hsTNI vs. ACHCBF_BEST ',xlab='ACHCBF_BEST',ylab='hsTNI')
+abline(v=20,col='red',lty=3)
+abline(v=50,col='red',lty=3)
+```
+
+
+
+
+
+
+### c)	Compare hsTNI (or log hsTNI) between those with ACHDIARES<0 vs. ACHDIARES>=0
+```{r}
+aim1$bi_ACHDIARES=factor(ifelse(aim1$ACHDIARES>0,1,0))
+ wilcox.test( hsTNI~bi_ACHDIARES , data = aim1,
+                   exact = FALSE)
+
+```
+
+### d)	Compare hsTNI (or log hsTNI) between those with ACHCBF_BEST < 20 vs. ACHCBF_BEST >=20 using Wilcoxon test
+```{r}
+aim1$bi_ACHCBF_BEST20=factor(ifelse(aim1$ACHCBF_BEST>20,1,0))
+ wilcox.test( hsTNI~bi_ACHCBF_BEST20 , data = aim1,
+                   exact = FALSE)
+
+```
+
+### e)	Compare hsTNI (or log hsTNI) between those with ACHCBF_BEST < 50 vs. ACHCBF_BEST >=50 using Wilcoxon test
+```{r}
+aim1$bi_ACHCBF_BEST50=factor(ifelse(aim1$ACHCBF_BEST>50,1,0))
+ wilcox.test( hsTNI~bi_ACHCBF_BEST50 , data = aim1,
+                   exact = FALSE)
+
+```
+
+
+### f)	Compare hsTNI (or log hsTNI) between those with ACHCBF_BEST < median vs. ACHCBF_BEST >=median using Wilcoxon test
+
+```{r}
+me=median(aim1$ACHCBF_BEST,na.rm=TRUE)
+aim1$bi_ACHCBF_BEST_me=factor(ifelse(aim1$ACHCBF_BEST>me,1,0))
+ wilcox.test( hsTNI~bi_ACHCBF_BEST_me , data = aim1,
+                   exact = FALSE)
+
+```
+### boxplot on  ACHCBF_BEST
+```{r}
+aim1$lg_hsTNI=log(aim1$hsTNI)
+library("ggpubr")
+ggboxplot(aim1, x = "bi_ACHCBF_BEST50", y = "lg_hsTNI", 
+          color = "bi_ACHCBF_BEST50", palette = c("#00AFBB", "#E7B800"),
+          ylab = "log_hsTNI", xlab = "ACHCBF_BEST > 50")
+```
+```{r}
+ggboxplot(aim1, x = "bi_ACHCBF_BEST20", y = "lg_hsTNI", 
+          color = "bi_ACHCBF_BEST20", palette = c("#00AFBB", "#E7B800"),
+          ylab = "log_hsTNI", xlab = "ACHCBF_BEST > 20")
+```
+```{r}
+ggboxplot(aim1, x = "bi_ACHCBF_BEST_me", y = "lg_hsTNI", 
+          color = "bi_ACHCBF_BEST_me", palette = c("#00AFBB", "#E7B800"),
+          ylab = "log_hsTNI", xlab = "ACHCBF_BEST > median")
+```
+
+### h) Scatter plot of hsTNI (or log hsTNI) vs. LVEDP
+
+```{r}
+plot(aim1$LVEDP,aim1$hsTNI,main='hsTNI vs. LVEDP ',xlab='LVEDP',ylab='hsTNI')
+abline(v=25,col='red',lty=3)
+plot(aim1$LVEDP,log(aim1$hsTNI),main='log hsTNI vs. LVEDP ',xlab='LVEDP',ylab='log hsTNI')
+abline(v=25,col='red',lty=3)
+```
+
+### i) Compare hsTNI (or log hsTNI) between those with  LVEDP < 25 vs.  >=25 using Wilcoxon  test
+
+```{r}
+aim1$bi_LVEDP=factor(ifelse(aim1$LVEDP>25,1,0))
+ wilcox.test( hsTNI~ bi_LVEDP, data = aim1,exact = FALSE)
+
+```
+
+
+
+
+## AIM 2 
+### a)	Scatter plot of hsTNI (or log hsTNI) vs. each cMRI variable 
+```{r}
+col=c('longstrain','LSRs','LSRd1','LSRd2','radstrain','RSRs','RSRd1',	'RSRd2','circstrainpercentage','CSRs','CSRd1','CSRd2','Mean_WMPRI')
+
+
+ 
+aim2=data[,col]
+aim2$lg_hsTNI=log(data$Mean_Conc__Pg_ml)
+
+#plot(log(aim2$hsTNI)~.,data=aim2,ylab='log hsTNI')
+```
+```{r}
+library(tidyr)
+aim2 %>%
+  gather(-lg_hsTNI, key = "var", value = "value") %>%
+  ggplot(aes(y =  lg_hsTNI, x = value)) +
+    geom_point(cex=0.5) +
+    facet_wrap(~ var, scales = "free") +
+    theme_bw()
+```
+
+
+
+###  b)	Correlation matrix of all cMRI variables  
+
+```{r}
+cMRI=aim2[,-ncol(aim2)]
+res=cor(cMRI,method = "spearman",use="complete.obs")
+```
+```{r}
+library(corrplot)
+corrplot(res, type = "upper", order = "original", 
+         tl.col = "black", tl.srt = 45)
+```
+
+### change order : group them by cardiac cycle phase:
+
+
+```{r}
+col=c('LSRs','RSRs','CSRs','LSRd1','RSRd1','CSRd1','LSRd2','RSRd2','CSRd2','longstrain','radstrain','circstrainpercentage')
+aim2=data[,col]
+aim2$hsTNI=data$Mean_Conc__Pg_ml
+
+```
+```{r}
+cMRI=aim2[,-ncol(aim2)]
+res=cor(cMRI,method = "spearman",use="complete.obs")
+```
+```{r}
+library(corrplot)
+corrplot(res, type = "upper", order = "original", 
+         tl.col = "black", tl.srt = 45)
+```
+
+
+
+### c)	Determine PCA or FA on cMRI variables
+```{r}
+library(visdat)
+vis_miss(cMRI)
+```
+```{r}
+na.omit(cMRI)->cMRI.omit
+bio.pca=prcomp(cMRI.omit,
+                 center = TRUE,
+                 scale. = TRUE)
+plot(bio.pca,type = "l")
+```
+```{r}
+VE <- bio.pca$sdev^2
+PVE <- VE / sum(VE)
+round(PVE, 2)
+```
+```{r}
+bio.pca$rotation[,1:4]
+```
+
+
+### d)	Extract principal components of factors and then examine the association with hsTNI and BNP (possibly adjusted for age)
+
+```{r}
+library(nFactors)
+my.data=cMRI.omit
+ev <- eigen(cor(my.data)) # get eigenvalues
+ap <- parallel(subject=nrow(my.data),var=ncol(my.data), rep=100, cent=.05)
+nS <- nScree(x=ev$values, aparallel=ap$eigen$qevpea)
+plotnScree(nS)
+```
+ The Kaiser-Guttman rule says that we should choose all factors with eigenvalue greater than 1, so we choose n=4
+ 
+```{r}
+ev$values
+```
+ 
+```{r}
+fit <- factanal(my.data, 
+                4,              # number of factors to extract
+                rotation="varimax")
+load<-fit$loadings
+load
+```
+ 
+
+ 
+#### adjust for log(BNP)
+```{r}
+col=c('radstrain','RSRs','RSRd1',	'RSRd2','circstrainpercentage','CSRs','CSRd1','CSRd2',	'longstrain','LSRs','LSRd1','LSRd2','Mean_WMPRI')
+aim2=data[,col]
+aim2$hsTNI=data$Mean_Conc__Pg_ml
+aim2$bnp=data$bnp
+aim2$age=data$age
+# adjust for  Diabetes
+aim2$HSDIB=data$HSDIB
+# adjust for Hypertension 
+aim2$HSHYP=data$HSHYP
+# adjust for Dyslipidemia
+aim2$DISLP=data$DISLP
+aim2.omit=na.omit(aim2)
+fit <- principal(aim2.omit[,col], nfactors=4, rotate="varimax")
+fit1=lm(fit$scores[,1]~log(bnp)+age+HSHYP+HSDIB+DISLP,data=aim2.omit)
+fit2=lm(fit$scores[,2]~log(bnp)+age+HSHYP+HSDIB+DISLP,data=aim2.omit)
+fit3=lm(fit$scores[,3]~log(bnp)+age+HSHYP+HSDIB+DISLP,data=aim2.omit)
+fit4=lm(fit$scores[,4]~log(bnp)+age+HSHYP+HSDIB+DISLP,data=aim2.omit)
+fit.BNP=list(fit1,fit2,fit3,fit4)
+```
+```{r}
+library(sjPlot)
+
+tab_model(fit.BNP,dv.labels=c('factor1','factor2','factor3','factor4'),show.se = TRUE)
+```
+#### adjust for log(hsTNI)
+```{r}
+fit1=lm(fit$scores[,1]~log(hsTNI)+age+HSHYP+HSDIB+DISLP,data=aim2.omit)
+fit2=lm(fit$scores[,2]~log(hsTNI)+age+HSHYP+HSDIB+DISLP,data=aim2.omit)
+fit3=lm(fit$scores[,3]~log(hsTNI)+age+HSHYP+HSDIB+DISLP,data=aim2.omit)
+fit4=lm(fit$scores[,4]~log(hsTNI)+age+HSHYP+HSDIB+DISLP,data=aim2.omit)
+fit.hsTNI=list(fit1,fit2,fit3,fit4)
+```
+
+```{r}
+library(sjPlot)
+
+tab_model(fit.hsTNI,dv.labels=c('factor1','factor2','factor3','factor4'),show.se = TRUE)
+```
+## AIM 3 
+### explore if women with higher urine hsTNI at baseline have worsened LV strain rate on follow up cardiac MRI 
+```{r}
+data_foll=read_xlsx('/Users/xiaoyi/Documents/2018Fall/Clinical/cardiac_MRI_and_troponin_and_BNP_levels/ahmedwisecvd3182019.xlsx',sheet = 'Follow Up CMRI')
+
+col=c('LSRs','RSRs','CSRs','LSRd1','RSRd1','CSRd1','LSRd2','RSRd2','CSRd2','longstrain','radstrain','circstrainpercentage','cmerg')
+aim3=data_foll[,col]
+aim2$cmerg=data$cmerg
+aim.all<-merge(aim2,aim3,by='cmerg')
+# the sequence of data should be aim3-aim2 (follow -baseline )
+M <- merge(aim3,aim2,by='cmerg')
+
+S <- M[,grepl("*\\.x$",names(M))] - M[,grepl("*\\.y$",names(M))]
+
+minus.aim<-cbind(M[,1,drop=FALSE],S)
+
+df=data.frame(lg_hsTNI=log(aim2$hsTNI),cmerg=aim2$cmerg)
+aim.all<-merge(minus.aim,df,by='cmerg')
+cov=c('age','HSHYP','HSDIB','DISLP','cmerg')
+#use baseline covariate !!
+aim.all.cov<-merge(data[,cov],aim.all,by='cmerg')
+aim.all.new<-aim.all[,-which(colnames(aim.all)=='cmerg')]
+colnames(aim.all.new)=gsub(".x$",'',colnames(aim.all.new))
+colnames(aim.all.cov)=gsub(".x$",'',colnames(aim.all.cov))
+
+```
+
+
+### plot difference of follow-up and baseline vs. baseline hsTIN
+```{r}
+library(tidyr)
+aim.all.new %>%
+  gather(-lg_hsTNI, key = "var", value = "value") %>%
+  ggplot(aes(y = value, x = lg_hsTNI)) +
+    geom_point(cex=0.5) +
+    facet_wrap(~ var, scales = "free") +
+    theme_bw()
+```
+
+### regression model
+```{r}
+col=c('radstrain','RSRs','RSRd1',	'RSRd2','circstrainpercentage','CSRs','CSRd1','CSRd2',	'longstrain','LSRs','LSRd1','LSRd2')
+fit.all=list()
+
+
+for (i in 1:length(col)){
+  fit=lm(get(col[i])~lg_hsTNI+age+HSHYP+HSDIB+DISLP,data=aim.all.cov)
+  fit.all[[i]]=fit
+}
+
+```
+
+```{r}
+library(sjPlot)
+
+tab_model(fit.all,dv.labels=col,show.se = TRUE)
+```
+
